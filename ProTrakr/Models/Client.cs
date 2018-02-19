@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Realms;
 
 namespace ProTrakr.Models
 {
-    public class Client
+    public class Client : RealmObject
     {
         public string Name { get; set; }
         public string Location { get; set; }

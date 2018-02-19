@@ -4,6 +4,7 @@ using Prism.Ioc;
 using Prism.Autofac;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using Realms;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace ProTrakr
@@ -31,6 +32,8 @@ namespace ProTrakr
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<ClientListPage>();
             containerRegistry.RegisterForNavigation<ClientDetailPage>();
+
+            containerRegistry.RegisterInstance(typeof(Realm), Realm.GetInstance());
         }
     }
 }
