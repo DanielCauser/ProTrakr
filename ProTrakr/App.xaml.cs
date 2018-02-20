@@ -4,6 +4,7 @@ using Prism.Ioc;
 using Prism.Autofac;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using MonkeyCache.SQLite;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace ProTrakr
@@ -23,6 +24,7 @@ namespace ProTrakr
         {
             InitializeComponent();
 
+            Barrel.ApplicationId = "com.tomobiledevelopers.protrakr";
             await NavigationService.NavigateAsync("NavigationPage/ClientListPage");
         }
 

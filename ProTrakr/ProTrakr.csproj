@@ -12,6 +12,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <PackageReference Include="MonkeyCache" Version="0.1.0.1-beta" />
     <PackageReference Include="MonkeyCache.SQLite" Version="0.1.0.1-beta" />
+    <PackageReference Include="Xam.Plugin.Connectivity" Version="3.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

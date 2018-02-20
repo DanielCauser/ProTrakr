@@ -10,6 +10,9 @@ using System.Net.Http;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Plugin.Connectivity;
+using MonkeyCache.SQLite;
+using MonkeyCache;
 
 namespace ProTrakr.ViewModels
 {
@@ -28,6 +31,7 @@ namespace ProTrakr.ViewModels
         }
 
         private HttpClient _httpClient = new HttpClient();
+        private string _url = "http://demo7345493.mockable.io/api/client";
 
         public ClientListPageViewModel(INavigationService navigationService)
             : base(navigationService)
@@ -38,7 +42,7 @@ namespace ProTrakr.ViewModels
         public async Task OnLoadCommand()
         {
             var clients = await GetData();
-            ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
+            ClientList.ReplaceRange(clients?.OrderBy(c => c.Name));
             IsRefreshing = false;
         }
 
@@ -52,15 +56,66 @@ namespace ProTrakr.ViewModels
             List<Client> clients = new List<Client>();
             try
             {
-                var result = await _httpClient.GetStringAsync("http://demo7345493.mockable.io/api/client");
-                clients = JsonConvert.DeserializeObject<List<Client>>(result);
+                var json = await _httpClient.GetStringAsync(_url);
+                clients = JsonConvert.DeserializeObject<List<Client>>(json);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-            } 
+            }
             return clients;
         }
+
+        //private async Task<List<Client>> GetData()
+        //{
+        //    List<Client> clients = new List<Client>();
+        //    try
+        //    {
+        //        //Dev handle online/offline scenario
+        //        if (!CrossConnectivity.Current.IsConnected)
+        //        {
+        //            return Barrel.Current.Get<List<Client>>(key: _url);
+        //        }
+
+        //        //Dev handles checking if cache is expired
+        //        if (!Barrel.Current.IsExpired(key: _url))
+        //        {
+        //            return Barrel.Current.Get<List<Client>>(key: _url);
+        //        }
+
+        //        var json = await _httpClient.GetStringAsync(_url);
+        //        clients = JsonConvert.DeserializeObject<List<Client>>(json);
+
+        //        //Saves the cache and pass it a timespan for expiration
+        //        Barrel.Current.Add(key: _url, data: clients, expireIn: TimeSpan.FromDays(1));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex);
+        //    } 
+        //    return clients;
+        //}
+
+        //private async Task<List<Client>> GetData()
+        //{
+        //    List<Client> clients = new List<Client>();
+        //    try
+        //    {
+        //        //Dev handle online/offline scenario
+        //        if (!CrossConnectivity.Current.IsConnected)
+        //        {
+        //            return Barrel.Current.Get<List<Client>>(key: _url);
+        //        }
+
+        //        var result = await HttpCache.Current.GetCachedAsync(Barrel.Current, _url, TimeSpan.FromSeconds(60), TimeSpan.FromDays(1));
+        //        clients = JsonConvert.DeserializeObject<List<Client>>(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex);
+        //    }
+        //    return clients;
+        //}
 
         public override async void OnNavigatingTo(NavigationParameters parameters)
         {
@@ -73,7 +128,7 @@ namespace ProTrakr.ViewModels
                 clients.Add(client);
             }
 
-            ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
+            ClientList.ReplaceRange(clients?.OrderBy(c => c.Name));
         }
 
         public void Dispose()
