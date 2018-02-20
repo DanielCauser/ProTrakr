@@ -7,7 +7,7 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="New Client" Command="{Binding NewCommand}" />
     </ContentPage.ToolbarItems>
-	<ContentPage.Content>
+    <ContentPage.Content>
         <ListView ItemsSource="{Binding ClientList}"
             RefreshCommand="{Binding RefreshCommand}"
             IsPullToRefreshEnabled="true"
@@ -23,5 +23,5 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-	</ContentPage.Content>
+    </ContentPage.Content>
 </ContentPage>

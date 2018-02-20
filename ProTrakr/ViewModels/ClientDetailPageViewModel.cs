@@ -1,4 +1,3 @@
-﻿using System;
 using System.Windows.Input;
 using ProTrakr.Models;
 using Prism.Commands;
@@ -7,9 +6,10 @@ using Realms;
 
 namespace ProTrakr.ViewModels
 {
-    public class ClientDetailPageViewModel: ViewModelBase
+    public class ClientDetailPageViewModel : ViewModelBase
     {
         public ICommand SaveCommand => new DelegateCommand(OnSaveCommand);
+        public ICommand DetailCommand => new DelegateCommand(OnDetailCommand);
         private Client _client;
         private readonly Realm _realm;
 
@@ -38,7 +38,12 @@ namespace ProTrakr.ViewModels
             {
                 _realm.Add(Client);
             });
-            NavigationService.GoBackAsync();
+            NavigationService.GoBackAsync(new NavigationParameters { { "Client", Client } });
+        }
+
+        private void OnDetailCommand()
+        {
+            
         }
     }
 }

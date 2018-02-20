@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using ProTrakr.Models;
@@ -69,6 +69,17 @@ namespace ProTrakr.ViewModels
         public void OnNewCommand(Client item)
         {
             NavigationService.NavigateAsync("ClientDetailPage", new NavigationParameters { { "Client", item } });
+        }
+
+        public override void OnNavigatingTo(NavigationParameters parameters)
+        {
+            parameters.TryGetValue("Client", out Client client);
+
+            if (client == null) return;
+
+            var clients = ClientList.ToList();
+            clients.Add(client);
+            ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
         }
     }
 }
