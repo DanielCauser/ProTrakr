@@ -9,7 +9,7 @@
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout>
-            <TableView Intent="Data">
+            <TableView Intent="Data" HeightRequest="150">
                 <TableRoot>
                     <TableSection Title="Client Details">
                         <EntryCell Label="Name" Text="{Binding Client.Name}"/>
