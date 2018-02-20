@@ -6,14 +6,18 @@ using Prism.Commands;
 using Prism.Navigation;
 using System.Linq;
 using MvvmHelpers;
+using System.Net.Http;
+using System.Diagnostics;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace ProTrakr.ViewModels
 {
-    public class ClientListPageViewModel : ViewModelBase
+    public class ClientListPageViewModel : ViewModelBase, IDisposable
     {
         public ICommand NewCommand => new DelegateCommand<Client>(OnNewCommand);
         public ICommand DetailCommand => new DelegateCommand<Client>(OnNewCommand);
-        public ICommand RefreshCommand => new DelegateCommand(OnLoadCommand);
+        public ICommand RefreshCommand => new DelegateCommand(async () => await OnLoadCommand());
         public ObservableRangeCollection<Client> ClientList { get; } = new ObservableRangeCollection<Client>();
 
         private bool _isRefreshing;
@@ -23,37 +27,18 @@ namespace ProTrakr.ViewModels
             set => SetProperty(ref _isRefreshing, value);
         }
 
+        private HttpClient _httpClient = new HttpClient();
+
         public ClientListPageViewModel(INavigationService navigationService)
             : base(navigationService)
         {
             Title = "Clients";
-
-            var bsiLabs = new Client
-            {
-                Name = "BSI Labs",
-                Location = "Toronto, Ontario, Canada"
-            };
-            bsiLabs.Projects.Add(new Project { Name = "ProTrakr", StartDate = DateTime.Today });
-
-            var microsoft = new Client
-            {
-                Name = "Microsoft",
-                Location = "Redmond, Washington, USA"
-            };
-            microsoft.Projects.Add(new Project { Name = "Xamarin", StartDate = DateTime.Today });
-            microsoft.Projects.Add(new Project { Name = "Visual Studio", StartDate = DateTime.Today });
-
-            var clients = new List<Client>
-            {
-                bsiLabs,
-                microsoft
-            };
-
-            ClientList.AddRange(clients);
         }
 
-        public void OnLoadCommand()
+        public async Task OnLoadCommand()
         {
+            var clients = await GetData();
+            ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
             IsRefreshing = false;
         }
 
@@ -62,15 +47,38 @@ namespace ProTrakr.ViewModels
             NavigationService.NavigateAsync("ClientDetailPage", new NavigationParameters { { "Client", item } });
         }
 
-        public override void OnNavigatingTo(NavigationParameters parameters)
+        private async Task<List<Client>> GetData()
+        {
+            List<Client> clients = new List<Client>();
+            try
+            {
+                var result = await _httpClient.GetStringAsync("http://demo7345493.mockable.io/api/client");
+                clients = JsonConvert.DeserializeObject<List<Client>>(result);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            } 
+            return clients;
+        }
+
+        public override async void OnNavigatingTo(NavigationParameters parameters)
         {
             parameters.TryGetValue("Client", out Client client);
 
-            if (client == null) return;
+            var clients = await GetData();
 
-            var clients = ClientList.ToList();
-            clients.Add(client);
+            if (client != null)
+            {
+                clients.Add(client);
+            }
+
             ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
+        }
+
+        public void Dispose()
+        {
+            _httpClient.Dispose();
         }
     }
 }
