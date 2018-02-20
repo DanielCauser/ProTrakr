@@ -4,7 +4,8 @@ using Prism.Ioc;
 using Prism.Autofac;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using Realms;
+using System;
+using ProTrakr.Services;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace ProTrakr
@@ -24,16 +25,17 @@ namespace ProTrakr
         {
             InitializeComponent();
 
-            await NavigationService.NavigateAsync("NavigationPage/ClientListPage");
+            await NavigationService.NavigateAsync("NavigationPage/LoginPage");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterForNavigation<NavigationPage>();
+            containerRegistry.RegisterForNavigation<LoginPage>();
             containerRegistry.RegisterForNavigation<ClientListPage>();
             containerRegistry.RegisterForNavigation<ClientDetailPage>();
 
-            containerRegistry.RegisterInstance(typeof(Realm), Realm.GetInstance());
+            containerRegistry.RegisterSingleton<IRealmService, RealmService>();
         }
     }
 }
