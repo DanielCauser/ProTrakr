@@ -7,8 +7,11 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="New Client" Command="{Binding NewCommand}" />
     </ContentPage.ToolbarItems>
-	<ContentPage.Content>
-        <ListView ItemsSource="{Binding ClientList}">
+    <ContentPage.Content>
+        <ListView ItemsSource="{Binding ClientList}"
+            RefreshCommand="{Binding RefreshCommand}"
+            IsPullToRefreshEnabled="true"
+            IsRefreshing="{Binding IsRefreshing}">
             <ListView.Behaviors>
                 <behavior:EventToCommandBehavior Command="{Binding DetailCommand}" 
                     EventName="ItemTapped"
@@ -20,5 +23,5 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-	</ContentPage.Content>
+    </ContentPage.Content>
 </ContentPage>

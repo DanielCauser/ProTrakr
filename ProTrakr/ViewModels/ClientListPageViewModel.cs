@@ -4,7 +4,8 @@ using System.Windows.Input;
 using ProTrakr.Models;
 using Prism.Commands;
 using Prism.Navigation;
-using Xamarin.Forms;
+using System.Linq;
+using MvvmHelpers;
 
 namespace ProTrakr.ViewModels
 {
@@ -12,7 +13,15 @@ namespace ProTrakr.ViewModels
     {
         public ICommand NewCommand => new DelegateCommand<Client>(OnNewCommand);
         public ICommand DetailCommand => new DelegateCommand<Client>(OnNewCommand);
-        public IList<Client> ClientList { get; set; }
+        public ICommand RefreshCommand => new DelegateCommand(OnLoadCommand);
+        public ObservableRangeCollection<Client> ClientList { get; } = new ObservableRangeCollection<Client>();
+
+        private bool _isRefreshing;
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set => SetProperty(ref _isRefreshing, value);
+        }
 
         public ClientListPageViewModel(INavigationService navigationService)
             : base(navigationService)
@@ -34,16 +43,34 @@ namespace ProTrakr.ViewModels
             microsoft.Projects.Add(new Project { Name = "Xamarin", StartDate = DateTime.Today });
             microsoft.Projects.Add(new Project { Name = "Visual Studio", StartDate = DateTime.Today });
 
-            ClientList = new List<Client>
+            var clients = new List<Client>
             {
                 bsiLabs,
                 microsoft
             };
+
+            ClientList.AddRange(clients);
+        }
+
+        public void OnLoadCommand()
+        {
+            IsRefreshing = false;
         }
 
         public void OnNewCommand(Client item)
         {
             NavigationService.NavigateAsync("ClientDetailPage", new NavigationParameters { { "Client", item } });
+        }
+
+        public override void OnNavigatingTo(NavigationParameters parameters)
+        {
+            parameters.TryGetValue("Client", out Client client);
+
+            if (client == null) return;
+
+            var clients = ClientList.ToList();
+            clients.Add(client);
+            ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
         }
     }
 }
