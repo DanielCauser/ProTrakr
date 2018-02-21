@@ -51,20 +51,20 @@ namespace ProTrakr.ViewModels
             NavigationService.NavigateAsync("ClientDetailPage", new NavigationParameters { { "Client", item } });
         }
 
-        private async Task<List<Client>> GetData()
-        {
-            List<Client> clients = new List<Client>();
-            try
-            {
-                var json = await _httpClient.GetStringAsync(_url);
-                clients = JsonConvert.DeserializeObject<List<Client>>(json);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            return clients;
-        }
+        //private async Task<List<Client>> GetData()
+        //{
+        //    List<Client> clients = new List<Client>();
+        //    try
+        //    {
+        //        var json = await _httpClient.GetStringAsync(_url);
+        //        clients = JsonConvert.DeserializeObject<List<Client>>(json);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex);
+        //    }
+        //    return clients;
+        //}
 
         //private async Task<List<Client>> GetData()
         //{
@@ -73,12 +73,6 @@ namespace ProTrakr.ViewModels
         //    {
         //        //Dev handle online/offline scenario
         //        if (!CrossConnectivity.Current.IsConnected)
-        //        {
-        //            return Barrel.Current.Get<List<Client>>(key: _url);
-        //        }
-
-        //        //Dev handles checking if cache is expired
-        //        if (!Barrel.Current.IsExpired(key: _url))
         //        {
         //            return Barrel.Current.Get<List<Client>>(key: _url);
         //        }
@@ -96,26 +90,26 @@ namespace ProTrakr.ViewModels
         //    return clients;
         //}
 
-        //private async Task<List<Client>> GetData()
-        //{
-        //    List<Client> clients = new List<Client>();
-        //    try
-        //    {
-        //        //Dev handle online/offline scenario
-        //        if (!CrossConnectivity.Current.IsConnected)
-        //        {
-        //            return Barrel.Current.Get<List<Client>>(key: _url);
-        //        }
+        private async Task<List<Client>> GetData()
+        {
+            List<Client> clients = new List<Client>();
+            try
+            {
+                //Dev handle online/offline scenario
+                if (!CrossConnectivity.Current.IsConnected)
+                {
+                    return Barrel.Current.Get<List<Client>>(key: _url);
+                }
 
-        //        var result = await HttpCache.Current.GetCachedAsync(Barrel.Current, _url, TimeSpan.FromSeconds(60), TimeSpan.FromDays(1));
-        //        clients = JsonConvert.DeserializeObject<List<Client>>(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine(ex);
-        //    }
-        //    return clients;
-        //}
+                var result = await HttpCache.Current.GetCachedAsync(Barrel.Current, _url, TimeSpan.FromSeconds(60), TimeSpan.FromDays(1));
+                clients = JsonConvert.DeserializeObject<List<Client>>(result);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            return clients;
+        }
 
         public override async void OnNavigatingTo(NavigationParameters parameters)
         {
