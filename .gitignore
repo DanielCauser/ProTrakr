@@ -38,3 +38,4 @@ Thumbs.db
 
 # dotCover
 *.dotCover
+/.vs/ProTrakr/v15/Server/sqlite3

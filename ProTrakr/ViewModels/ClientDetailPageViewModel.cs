@@ -2,6 +2,7 @@
 using ProTrakr.Models;
 using Prism.Commands;
 using Prism.Navigation;
+using ProTrakr.Services;
 
 namespace ProTrakr.ViewModels
 {
@@ -17,8 +18,8 @@ namespace ProTrakr.ViewModels
             set => SetProperty(ref _client, value);
         }
 
-        public ClientDetailPageViewModel(INavigationService navigationService)
-            : base(navigationService)
+        public ClientDetailPageViewModel(INavigationService navigationService, IUtilityService utilityService)
+            : base(navigationService, utilityService)
         {
         }
 

@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using ProTrakr.Models;
 using Prism.Commands;
 using Prism.Navigation;
 using System.Linq;
 using MvvmHelpers;
-using System.Net.Http;
-using System.Diagnostics;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
+using ProTrakr.Services;
 
 namespace ProTrakr.ViewModels
 {
-    public class ClientListPageViewModel : ViewModelBase, IDisposable
+    public class ClientListPageViewModel : ViewModelBase
     {
-        public ICommand NewCommand => new DelegateCommand<Client>(OnNewCommand);
-        public ICommand DetailCommand => new DelegateCommand<Client>(OnNewCommand);
-        public ICommand RefreshCommand => new DelegateCommand(async () => await OnLoadCommand());
+        private readonly ClientDataService _clientDataService;
+        private ICommand _newCommand;
+        public ICommand NewCommand => _newCommand = _newCommand ?? new DelegateCommand(OnNewCommand);
+        private ICommand _detailCommand;
+        public ICommand DetailCommand => _detailCommand = _detailCommand ?? new DelegateCommand<Client>(OnDetailCommand);
+        private ICommand _refreshCommand;
+        public ICommand RefreshCommand => _refreshCommand = _refreshCommand ?? new DelegateCommand(async () => await OnLoadCommand());
         public ObservableRangeCollection<Client> ClientList { get; } = new ObservableRangeCollection<Client>();
 
         private bool _isRefreshing;
@@ -26,59 +26,45 @@ namespace ProTrakr.ViewModels
             get => _isRefreshing;
             set => SetProperty(ref _isRefreshing, value);
         }
-
-        private HttpClient _httpClient = new HttpClient();
-
-        public ClientListPageViewModel(INavigationService navigationService)
-            : base(navigationService)
+        
+        public ClientListPageViewModel(INavigationService navigationService, IUtilityService utilityService, ClientDataService clientDataService)
+            : base(navigationService, utilityService)
         {
+            _clientDataService = clientDataService;
             Title = "Clients";
         }
 
         public async Task OnLoadCommand()
         {
-            var clients = await GetData();
+            var clients = await RunSafeAsync(() => _clientDataService.GetClientList());
             ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
             IsRefreshing = false;
         }
 
-        public void OnNewCommand(Client item)
+        public void OnNewCommand()
         {
-            NavigationService.NavigateAsync("ClientDetailPage", new NavigationParameters { { "Client", item } });
+            NavigationService.NavigateAsync("ClientDetailPage");
         }
 
-        private async Task<List<Client>> GetData()
+        public void OnDetailCommand(Client item)
         {
-            List<Client> clients = new List<Client>();
-            try
-            {
-                var result = await _httpClient.GetStringAsync("http://demo7345493.mockable.io/api/client");
-                clients = JsonConvert.DeserializeObject<List<Client>>(result);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            } 
-            return clients;
+            NavigationService.NavigateAsync("ClientDetailPage", new NavigationParameters { { "Client", item } });
         }
 
         public override async void OnNavigatingTo(NavigationParameters parameters)
         {
             parameters.TryGetValue("Client", out Client client);
 
-            var clients = await GetData();
-
+            var clients = await RunSafeAsync(() => _clientDataService.GetClientList());
             if (client != null)
             {
                 clients.Add(client);
             }
 
-            ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
-        }
-
-        public void Dispose()
-        {
-            _httpClient.Dispose();
+            if (clients != null)
+            {
+                ClientList.ReplaceRange(clients.OrderBy(c => c.Name));
+            }
         }
     }
 }

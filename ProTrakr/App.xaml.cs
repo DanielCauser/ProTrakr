@@ -2,6 +2,9 @@
 using Prism;
 using Prism.Ioc;
 using Prism.Autofac;
+using Prism.Logging;
+using Prism.Services;
+using ProTrakr.Services;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -28,6 +31,13 @@ namespace ProTrakr
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.Register<ILoggerFacade, ConsoleLogger>();
+            containerRegistry.Register<IDeviceService, DeviceService>();
+            containerRegistry.Register<IErrorManagementService, ErrorManagementService>();
+            containerRegistry.Register<IUtilityService, UtilityService>();
+
+            containerRegistry.Register<ClientDataService>();
+
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<ClientListPage>();
             containerRegistry.RegisterForNavigation<ClientDetailPage>();
